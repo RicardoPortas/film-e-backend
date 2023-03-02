@@ -5,31 +5,30 @@ const { model, Schema } = mongoose
 const movieSchema = new Schema({
         title: {
           type: String,
-          required: true
+          required: [true, 'O título é obrigatório']
         },
         year: {
           type: Number,
-          required: true
         },
         yearAproved: {
           type: Number,
-          required: true
+          required: [true, 'O ano de aprovação na ANCINE é Obrigatório']
         },
         salic: {
           type: Number,
-          required: true
+          required: [true, 'O número de aprovação SALIC é obrigatório']
         },
         proposer: {
           type: String,
-          required: true
+          required: [true, 'O número de aprovação SALIC é obrigatório']
         },
         uf:{
           type: String,
-          required: true
+          required: [true, 'O Estado de origem do projeto é obrigatório']
         },
         processNumber: {
             type: String,
-            required: true
+            required: [true, 'O número do processo na ANCINE obrigatório']
         },
         posterUrl: {
           type: String
@@ -46,12 +45,21 @@ const movieSchema = new Schema({
         writers: {
           type: [String]
         },
-        actors: {
-          type: [String]
-        },
-        company: {
+        cast: [{
+          type: Schema.Types.ObjectId,
+          ref: "Star"
+        }],
+        comments: [{
+          type: Schema.Types.ObjectId,
+          ref: "Comment"
+        }],
+        Crew: [{
+          type: Schema.Types.ObjectId,
+          ref: "Professional"
+        }],
+        Production: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Company',
+          ref: 'Production',
         }
       }, {timestamps: true})
 
