@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import User from '../models/User.model'
-import Production from '../models/Production.model.js'
+import User from '../models/user.model'
+import Producer from '../models/producer.model'
 import Company from '../models/company.model.js'
-import Movie from '../models/Movie.model.js'
+import Movie from '../models/movie.model.js'
 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'

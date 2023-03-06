@@ -1,49 +1,49 @@
 import { Router } from 'express'
-import User from '../models/User.model'
-import Production from '../models/Production.model.js'
-import Company from '../models/company.model.js'
-import Movie from '../models/Movie.model.js'
+import User from '../models/user.model'
+import Producer from '../models/producer.model.js'
+import Professional from '../models/professional.model.js'
+import Movie from '../models/movie.model.js'
 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
-const nfRouter = Router()
+const professionalRouter = Router()
 
-nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
+professionalRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
     const payload = req.body
     try {
-        const newNf = await Nf.create(payload)
-        return res.status(201).json(newNf)
+        const newProfessional = await Professional.create(payload)
+        return res.status(201).json(newProfessional)
     } catch (error) {
         console.log(error)
         if(error.name === 'ValidationError') {
             return res.status(422).json({message: "Validation error. Check your input."})
         }
-        return res.status(500).json({message: "Error while creating movie"})
+        return res.status(500).json({message: "Error while creating Professional"})
     }
 })
 
-nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
-    const { year, order } = req.query
+professionalRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
+    const { name, order } = req.query
     const query = {}
-    if(year) {
-        query.year = year
+    if(name) {
+        query.name = name
     }
     try {
-        const nf = await Nf.find(query)
-                        .populate('cast' , 'name wikipediaLink -_id')
+        const professional = await Professional.find(query)
+                        .populate('movies' , 'title -_id')
                         .sort(order)
-        return res.status(200).json(movies)
+        return res.status(200).json(professional)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
+professionalRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        const nf = await nf.findById(id)
-            .populate('cast comments')
+        const professional = await professional.findById(id)
+            .populate('comments')
             .populate({
                 path: 'comments',
                 populate: {
@@ -51,45 +51,45 @@ nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
                     model: 'User'
                 }
             })
-        if(!nf) {
+        if(!professional) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(movie)
+        return res.status(200).json(professional)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
+professionalRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     const payload = req.body
     try {
-        const updatedNf = await Nf.findOneAndUpdate({_id: id}, payload, { new: true })
+        const updatedProfessional = await Professional.findOneAndUpdate({_id: id}, payload, { new: true })
         
-        await Star.updateMany({_id: {$in: payload.cast}}, {$push: {movies: updatedMovie._id}})
+        await Movie.updateMany({_id: {$in: payload.name}}, {$push: {movies: updatedMovie._id}})
         
-        if(!updatedNf) {
+        if(!updatedProfessional) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(updatedMovie)
+        return res.status(200).json(updatedProfessional)
     } catch (error) {
         console.log(error)
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
+professionalRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        await Nf.findOneAndDelete({_id: id})
+        await Professional.findOneAndDelete({_id: id})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('nfDocument'), (req, res) => {
+professionalRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('professionalDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 
-export default nfRouter
+export default professionalRouter

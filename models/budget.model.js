@@ -4,7 +4,7 @@ const { model, Schema } = mongoose
 
 const budgetSchema = new Schema({
 
-    company: {
+    producer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',
         required: true
@@ -12,6 +12,11 @@ const budgetSchema = new Schema({
       movie: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Movie',
+        required: true
+      },
+      professional: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
         required: true
       },
       invoiceNumber: {
@@ -28,10 +33,6 @@ const budgetSchema = new Schema({
       },
       invoiceAmount: {
         type: Number,
-        required: true
-      },
-      hash: {
-        type: String,
         required: true
       },
       nonce: {

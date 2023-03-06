@@ -5,14 +5,21 @@ const { model, Schema } = mongoose
 
 const nfSchema = new Schema({
 
-    company: {
-      type: String,
-        required: false
-      },
-      movie: {
-        type: String,
-        required: false
-      },
+  producer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company',
+    required: true
+  },
+  movie: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Movie',
+    required: true
+  },
+  professional: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company',
+    required: true
+  },
       invoiceNumber: {
         type: String,
         required: true

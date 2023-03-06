@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const { model, Schema } = mongoose
 
-const movieSchema = new Schema({
+const userSchema = new Schema({
 
   email: {
     type: String,
@@ -39,7 +39,7 @@ const movieSchema = new Schema({
     type: String
   },
   photo: {
-    type: String (URL)
+    type: String 
   },
   userType: {
     type: String, 
@@ -74,4 +74,4 @@ const movieSchema = new Schema({
       ],
     }, {timestamps: true})
 
-      export default model('Movie', movieSchema)
+      export default model('User', userSchema)

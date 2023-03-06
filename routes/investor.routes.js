@@ -1,19 +1,16 @@
 import { Router } from 'express'
-import User from '../models/User.model'
-import Production from '../models/Production.model.js'
-import Company from '../models/company.model.js'
-import Movie from '../models/Movie.model.js'
+import Investor from '../models/investor.model'
 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
-const nfRouter = Router()
+const investorRouter = Router()
 
-nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
+investorRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
     const payload = req.body
     try {
-        const newNf = await Nf.create(payload)
-        return res.status(201).json(newNf)
+        const newInvestor = await Investor.create(payload)
+        return res.status(201).json(newInvestor)
     } catch (error) {
         console.log(error)
         if(error.name === 'ValidationError') {

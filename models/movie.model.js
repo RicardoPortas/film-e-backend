@@ -57,10 +57,11 @@ const movieSchema = new Schema({
           type: Schema.Types.ObjectId,
           ref: "Professional"
         }],
-        Production: {
+        Producer: [{
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Production',
-        }
+          ref: 'Producer',
+          required: true
+        }]
       }, {timestamps: true})
 
       export default model('Movie', movieSchema)

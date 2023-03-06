@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import Movie from '../models/Movie.model.js'
-import Star from '../models/Star.model.js'
+import Movie from '../models/movie.model.js'
+import Star from '../models/star.model.js'
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
@@ -28,7 +28,7 @@ moviesRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
     }
     try {
         const movies = await Movie.find(query)
-                        .populate('cast' , 'name wikipediaLink -_id')
+                        .populate('cast' , 'name wikipediaLink -_id' , 'crew' , 'producer')
                         .sort(order)
         return res.status(200).json(movies)
     } catch (error) {
@@ -40,7 +40,7 @@ moviesRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
         const movie = await Movie.findById(id)
-            .populate('cast comments')
+            .populate('user comments')
             .populate({
                 path: 'comments',
                 populate: {

@@ -1,48 +1,48 @@
 import { Router } from 'express'
-import User from '../models/User.model'
-import Production from '../models/Production.model.js'
+import User from '../models/user.model.js'
+import Producer from '../models/producer.model.js'
 import Company from '../models/company.model.js'
-import Movie from '../models/Movie.model.js'
+import Movie from '../models/movie.model.js'
 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
-const nfRouter = Router()
+const producerRouter = Router()
 
-nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
+producerRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
     const payload = req.body
     try {
-        const newNf = await Nf.create(payload)
+        const newProducer = await Producer.create(payload)
         return res.status(201).json(newNf)
     } catch (error) {
         console.log(error)
         if(error.name === 'ValidationError') {
             return res.status(422).json({message: "Validation error. Check your input."})
         }
-        return res.status(500).json({message: "Error while creating movie"})
+        return res.status(500).json({message: "Error while creating Producer"})
     }
 })
 
-nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
-    const { year, order } = req.query
+producerRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
+    const { name, order } = req.query
     const query = {}
-    if(year) {
-        query.year = year
+    if(name) {
+        query.name = name
     }
     try {
-        const nf = await Nf.find(query)
-                        .populate('cast' , 'name wikipediaLink -_id')
+        const producer = await Producer.find(query)
+                        .populate('movie', 'title -_id')
                         .sort(order)
-        return res.status(200).json(movies)
+        return res.status(200).json(producer)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
+producerRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        const nf = await nf.findById(id)
+        const producer = await producer.findById(id)
             .populate('cast comments')
             .populate({
                 path: 'comments',
@@ -51,45 +51,45 @@ nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
                     model: 'User'
                 }
             })
-        if(!nf) {
+        if(!producer) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(movie)
+        return res.status(200).json(producer)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
+producerRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     const payload = req.body
     try {
-        const updatedNf = await Nf.findOneAndUpdate({_id: id}, payload, { new: true })
+        const updatedProducer = await Producer.findOneAndUpdate({_id: id}, payload, { new: true })
         
-        await Star.updateMany({_id: {$in: payload.cast}}, {$push: {movies: updatedMovie._id}})
+        await Movie.updateMany({_id: {$in: payload.movies}}, {$push: {movies: updatedMovie._id}})
         
-        if(!updatedNf) {
+        if(!updatedProducer) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(updatedMovie)
+        return res.status(200).json(updatedProducer)
     } catch (error) {
         console.log(error)
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
+producerRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        await Nf.findOneAndDelete({_id: id})
+        await Producer.findOneAndDelete({_id: id})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('nfDocument'), (req, res) => {
+producerRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('producerDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 
-export default nfRouter
+export default producerRouter

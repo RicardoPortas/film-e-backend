@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const { model, Schema } = mongoose
 
-const productionSchema = new Schema({
+const producerSchema = new Schema({
 
         razaoSocial: {
           type: String,
@@ -44,4 +44,4 @@ const productionSchema = new Schema({
         }
       }, {timestamps: true})
 
-      export default model('Production', productionSchema)
+      export default model('Producer', producerSchema)

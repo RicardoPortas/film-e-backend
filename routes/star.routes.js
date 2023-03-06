@@ -1,21 +1,16 @@
 import { Router } from 'express'
-import User from '../models/User.model'
-import Production from '../models/Production.model.js'
-import Company from '../models/company.model.js'
-import Movie from '../models/Movie.model.js'
-
+import Star from '../models/star.model.js'
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
-const nfRouter = Router()
+const starsRouter = Router()
 
-nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
+starsRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
     const payload = req.body
     try {
-        const newNf = await Nf.create(payload)
-        return res.status(201).json(newNf)
+        const newStar = await Star.create(payload)
+        return res.status(201).json(newStar)
     } catch (error) {
-        console.log(error)
         if(error.name === 'ValidationError') {
             return res.status(422).json({message: "Validation error. Check your input."})
         }
@@ -23,73 +18,52 @@ nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
-    const { year, order } = req.query
-    const query = {}
-    if(year) {
-        query.year = year
-    }
+starsRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
     try {
-        const nf = await Nf.find(query)
-                        .populate('cast' , 'name wikipediaLink -_id')
-                        .sort(order)
-        return res.status(200).json(movies)
+        const stars = await Star.find({}).populate('movies', 'title -_id')
+        return res.status(200).json(stars)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
+starsRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        const nf = await nf.findById(id)
-            .populate('cast comments')
-            .populate({
-                path: 'comments',
-                populate: {
-                    path: 'user',
-                    model: 'User'
-                }
-            })
-        if(!nf) {
+        const star = await Star.findById(id)
+        if(!star) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(movie)
+        return res.status(200).json(star)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
-
-nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
+starsRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     const payload = req.body
     try {
-        const updatedNf = await Nf.findOneAndUpdate({_id: id}, payload, { new: true })
-        
-        await Star.updateMany({_id: {$in: payload.cast}}, {$push: {movies: updatedMovie._id}})
-        
-        if(!updatedNf) {
+        const updatedStar = await Star.findOneAndUpdate({_id: id}, payload, { new: true })
+        if(!updatedStar) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(updatedMovie)
+        return res.status(200).json(updatedStar)
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: "Internal server error"})
     }
 })
-
-nfRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
+starsRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        await Nf.findOneAndDelete({_id: id})
+        await Star.findOneAndDelete({_id: id})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('nfDocument'), (req, res) => {
+starsRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('starPicture'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 
-export default nfRouter
+export default starsRouter

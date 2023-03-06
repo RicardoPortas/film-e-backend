@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import User from '../models/User.model'
-import Production from '../models/Production.model.js'
-import Company from '../models/company.model.js'
-import Movie from '../models/Movie.model.js'
+import User from '../models/user.model.js'
+import Producer from '../models/producer.model.js'
+import Professional from '../models/professional.model.js'
+import Movie from '../models/movie.model.js'
 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
@@ -19,7 +19,7 @@ nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
         if(error.name === 'ValidationError') {
             return res.status(422).json({message: "Validation error. Check your input."})
         }
-        return res.status(500).json({message: "Error while creating movie"})
+        return res.status(500).json({message: "Error while creating Invoice"})
     }
 })
 
@@ -33,7 +33,7 @@ nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
         const nf = await Nf.find(query)
                         .populate('cast' , 'name wikipediaLink -_id')
                         .sort(order)
-        return res.status(200).json(movies)
+        return res.status(200).json(nf)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
@@ -54,7 +54,7 @@ nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
         if(!nf) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(movie)
+        return res.status(200).json(nf)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
@@ -66,12 +66,12 @@ nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
     try {
         const updatedNf = await Nf.findOneAndUpdate({_id: id}, payload, { new: true })
         
-        await Star.updateMany({_id: {$in: payload.cast}}, {$push: {movies: updatedMovie._id}})
+        await Movie.updateMany({_id: {$in: payload.id}}, {$push: {movies: updatedMovie._id}})
         
         if(!updatedNf) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(updatedMovie)
+        return res.status(200).json(updatedNf)
     } catch (error) {
         console.log(error)
         return res.status(500).json({message: "Internal server error"})
@@ -91,5 +91,6 @@ nfRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
 nfRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('nfDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
+
 
 export default nfRouter
