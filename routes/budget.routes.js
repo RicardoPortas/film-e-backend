@@ -3,17 +3,20 @@ import User from '../models/user.model'
 import Producer from '../models/producer.model'
 import Company from '../models/company.model.js'
 import Movie from '../models/movie.model.js'
-
+import permit from "./authorization.js"; // middleware for checking if user's role is permitted to make request
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
-const nfRouter = Router()
+app.use("/api/private", permit("admin"));
+app.use(["/api/foo", "/api/bar"], permit("producer", "professional"));
 
-nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
+const budgetRouter = Router()
+ 
+budgetRouter.post('/', [isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
     const payload = req.body
     try {
-        const newNf = await Nf.create(payload)
-        return res.status(201).json(newNf)
+        const newbudget = await budget.create(payload)
+        return res.status(201).json(newBudget)
     } catch (error) {
         console.log(error)
         if(error.name === 'ValidationError') {
@@ -23,73 +26,73 @@ nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
-    const { year, order } = req.query
+budgetRouter.get('/', [isAuthenticatedMiddleware, permit("professional", "producer", "investor")], async (req, res) => {
+    const { invoiceDate, order } = req.query
     const query = {}
-    if(year) {
-        query.year = year
+    if(invoiceDate) {
+        query.invoiceDate = invoiceDate
     }
     try {
-        const nf = await Nf.find(query)
-                        .populate('cast' , 'name wikipediaLink -_id')
+        const budget = await Budget.find(query)
+                        .populate('budget')
                         .sort(order)
-        return res.status(200).json(movies)
+        return res.status(200).json(budget)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
+budgetRouter.get('/:id', [isAuthenticatedMiddleware, permit("professional", "producer", "investor")], async (req, res) => {
     const { id } = req.params
     try {
-        const nf = await nf.findById(id)
-            .populate('cast comments')
+        const budget = await budget.findById(id)
+            .populate('nf')
             .populate({
-                path: 'comments',
+                path: 'budget',
                 populate: {
                     path: 'user',
                     model: 'User'
                 }
             })
-        if(!nf) {
+        if(!budget) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(movie)
+        return res.status(200).json(budget)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
+budgetRouter.put('/:id', [isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
     const { id } = req.params
     const payload = req.body
     try {
-        const updatedNf = await Nf.findOneAndUpdate({_id: id}, payload, { new: true })
+        const updatedBudget = await Budget.findOneAndUpdate({_id: id}, payload, { new: true })
         
-        await Star.updateMany({_id: {$in: payload.cast}}, {$push: {movies: updatedMovie._id}})
+        await Nf.updateMany({_id: {$in: payload.cast}}, {$push: {nfs: updatedNf._id}})
         
-        if(!updatedNf) {
+        if(!updatedBudget) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(updatedMovie)
+        return res.status(200).json(updatedBudget)
     } catch (error) {
         console.log(error)
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
+budgetRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        await Nf.findOneAndDelete({_id: id})
+        await Budget.findOneAndDelete({_id: id})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('nfDocument'), (req, res) => {
+budgetRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('budgetDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 
-export default nfRouter
+export default budgetRouter

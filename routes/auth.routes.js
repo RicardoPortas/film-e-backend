@@ -4,12 +4,11 @@ import User from '../models/user.model.js'
 import 'dotenv/config'
 import jwt from 'jsonwebtoken'
 import fileUpload from '../config/cloudinary.config.js'
-import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
 const authRouter = Router()
 
 authRouter.post('/sign-up', async (req, res) => {
-    const { email, password } = req.body
+    const { email, password, userType} = req.body
 
     try {
 
@@ -21,7 +20,7 @@ authRouter.post('/sign-up', async (req, res) => {
         const salt = bcrypt.genSaltSync(+process.env.SALT_ROUNDS)
         const passwordHash = bcrypt.hashSync(password, salt)
 
-        const newUser = await User.create({ email, passwordHash })
+        const newUser = await User.create({ email, passwordHash, userType })
         if(newUser) {
             return res.status(201).json({message: 'User Created'})
         }
@@ -69,7 +68,7 @@ authRouter.post('/login', async (req, res) => {
         const expiresIn = process.env.JWT_EXPIRES
 
        
-        const token = jwt.sign({id: user._id, email: user.email}, secret, {expiresIn})
+        const token = jwt.sign({id: user._id, email: user.email, userType: user.userType}, secret, {expiresIn})
 
         setTimeout(() => {
             try {

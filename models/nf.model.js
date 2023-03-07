@@ -7,34 +7,32 @@ const nfSchema = new Schema({
 
   producer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Company',
+    ref: 'Producer',
     required: true
   },
   movie: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Movie',
-    required: true
   },
   professional: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Company',
-    required: true
+    ref: 'Professional',
   },
       invoiceNumber: {
         type: String,
-        required: true
+        required: false
       },
       invoiceDate: {
         type: String,
-        required: true
+        required: false
       },
       invoiceVerification: {
         type: String,
-        required: true
+        required: false
       },
       invoiceAmount: {
         type: Number,
-        required: true
+        required: false
       },
       previousValidatorHash: {
         type: String,

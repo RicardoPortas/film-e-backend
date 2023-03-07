@@ -16,31 +16,31 @@ investorRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
         if(error.name === 'ValidationError') {
             return res.status(422).json({message: "Validation error. Check your input."})
         }
-        return res.status(500).json({message: "Error while creating movie"})
+        return res.status(500).json({message: "Error while creating investor"})
     }
 })
 
-nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
-    const { year, order } = req.query
+investorRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
+    const { nome, order } = req.query
     const query = {}
-    if(year) {
-        query.year = year
+    if(nome) {
+        query.nome = nome
     }
     try {
-        const nf = await Nf.find(query)
-                        .populate('cast' , 'name wikipediaLink -_id')
+        const investor = await Investor.find(query)
+                        .populate('nome' , 'sobrenome')
                         .sort(order)
-        return res.status(200).json(movies)
+        return res.status(200).json(investor)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
+investorRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        const nf = await nf.findById(id)
-            .populate('cast comments')
+        const investor = await investor.findById(id)
+            .populate('comments')
             .populate({
                 path: 'comments',
                 populate: {
@@ -48,45 +48,43 @@ nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
                     model: 'User'
                 }
             })
-        if(!nf) {
+        if(!investor) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(movie)
+        return res.status(200).json(investor)
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
+investorRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     const payload = req.body
     try {
-        const updatedNf = await Nf.findOneAndUpdate({_id: id}, payload, { new: true })
-        
-        await Star.updateMany({_id: {$in: payload.cast}}, {$push: {movies: updatedMovie._id}})
-        
-        if(!updatedNf) {
+        const updatedInvestor = await investor.findOneAndUpdate({_id: id}, payload, { new: true })
+                
+        if(!updatedInvestor) {
             return res.status(404).json({message: 'Not Found'})
         }
-        return res.status(200).json(updatedMovie)
+        return res.status(200).json(updatedInvestor)
     } catch (error) {
         console.log(error)
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
+investorRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        await Nf.findOneAndDelete({_id: id})
+        await Investor.findOneAndDelete({_id: id})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 })
 
-nfRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('nfDocument'), (req, res) => {
+investorRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('investorDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 
-export default nfRouter
+export default investorRouter

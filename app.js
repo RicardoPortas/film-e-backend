@@ -5,6 +5,7 @@ import connectDb from './config/db.connection.js'
 import moviesRouter from './routes/movies.routes.js'
 import starsRouter from './routes/star.routes.js'
 import authRouter from './routes/auth.routes.js'
+import nfRouter from './routes/nf.routes.js'
 import commentsRouter from './routes/comments.routes.js'
 import jwt from 'jsonwebtoken'
 
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
 app.use(express.json())
 app.use('/movies', moviesRouter)
 app.use('/stars', starsRouter)
+app.use('/nf', nfRouter)
 app.use(commentsRouter)
 app.use(authRouter)
 

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import validator from 'validator'
 
 const { model, Schema } = mongoose
 
@@ -8,7 +9,11 @@ const userSchema = new Schema({
     type: String,
     trim: true,
     required: true,
-    unique: true
+    unique: true,
+    validate: {
+      validator: value => validator.isEmail(value),
+      message: ' the email is invalid. '
+    }
   },
   passwordHash: {
     type: String,
@@ -16,24 +21,18 @@ const userSchema = new Schema({
   },
   firstName: {
     type: String,
-    required: true
   },
   lastName: {
     type: String,
-    required: true
   },
   cpf: {
     type: String,
-    required: true,
-    unique: true
   },
   country: {
     type: String,
-    required: true
   },
   city: {
     type: String,
-    required: true
   },
   profession: {
     type: String
@@ -43,7 +42,8 @@ const userSchema = new Schema({
   },
   userType: {
     type: String, 
-    enum: ["production","investor","entusiast","professional", "channel"],default:"entusiast"
+    enum: ["producer","investor","entusiast","professional", "channel"],default:"entusiast",
+    required: true
   },
   contacts: [
      { 

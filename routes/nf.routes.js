@@ -2,17 +2,19 @@ import { Router } from 'express'
 import User from '../models/user.model.js'
 import Producer from '../models/producer.model.js'
 import Professional from '../models/professional.model.js'
+import Nf from '../models/nf.model.js'
 import Movie from '../models/movie.model.js'
+import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
+import permit from "../middlewares/authorization.js"; 
 
 import fileUpload from '../config/cloudinary.config.js'
-import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
 const nfRouter = Router()
 
-nfRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
+nfRouter.post('/', [isAuthenticatedMiddleware, permit("professional", "producer")], async (req, res) => {
     const payload = req.body
     try {
-        const newNf = await Nf.create(payload)
+        const newNf = await Nf.create({...payload, producer: req.user.id})
         return res.status(201).json(newNf)
     } catch (error) {
         console.log(error)

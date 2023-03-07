@@ -28,7 +28,7 @@ moviesRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
     }
     try {
         const movies = await Movie.find(query)
-                        .populate('cast' , 'name wikipediaLink -_id' , 'crew' , 'producer')
+                        .populate('cast' , 'name wikipediaLink -_id' , 'crew' , 'producer', 'comments')
                         .sort(order)
         return res.status(200).json(movies)
     } catch (error) {
