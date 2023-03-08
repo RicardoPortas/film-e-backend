@@ -1,10 +1,9 @@
-import mongoose from 'mongoose'
-import crypto from 'crypto'
+import mongoose from 'mongoose';
+import crypto from 'crypto';
 
-const { model, Schema } = mongoose
+const { model, Schema } = mongoose;
 
 const nfSchema = new Schema({
-
   producer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Producer',
@@ -12,61 +11,71 @@ const nfSchema = new Schema({
   },
   movie: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Movie',
+    ref: 'Movie'
   },
   professional: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Professional',
+    ref: 'Professional'
   },
-      invoiceNumber: {
-        type: String,
-        required: false
-      },
-      invoiceDate: {
-        type: String,
-        required: false
-      },
-      invoiceVerification: {
-        type: String,
-        required: false
-      },
-      invoiceAmount: {
-        type: Number,
-        required: false
-      },
-      previousValidatorHash: {
-        type: String,
-        default: null
-      },
-      validatorHash: {
-        type: String,
-        required: false
-      },
-      nfImage: String,
+  invoiceNumber: {
+    type: String,
+    required: false
+  },
+  invoiceDate: {
+    type: String,
+    required: false
+  },
+  invoiceVerification: {
+    type: String,
+    required: false
+  },
+  invoiceAmount: {
+    type: Number,
+    required: false
+  },
+  previousValidatorHash: {
+    type: String
+  },
+  validatorHash: {
+    type: String,
+    required: false
+  },
+  nfImage: String
+}, { timestamps: true });
 
-      }, {timestamps: true})
+nfSchema.pre('save', function(next) {
+  const nfData = {
+    producer: this.producer,
+    movie: this.movie,
+    invoiceNumber: this.invoiceNumber,
+    invoiceDate: this.invoiceDate,
+    invoiceVerification: this.invoiceVerification,
+    invoiceAmount: this.invoiceAmount,
+    nfImage: this.nfImage
+  };
 
-      nfSchema.pre('save', function (next) {
-        const invoiceData = {
-          company: this.company,
-          movie: this.movie,
-          invoiceNumber: this.invoiceNumber,
-          invoiceDate: this.invoiceDate,
-          invoiceVerification: this.invoiceVerification,
-          invoiceAmount: this.invoiceAmount,
-          nfImage: this.nfImage,
-          previousValidatorHash: this.previousValidatorHash
-        }
-        
-        if (this.isNew) {
-          this.validatorHash = crypto.createHash('sha256').update(JSON.stringify(invoiceData)).digest('hex')
-        } else {
-          this.previousValidatorHash = this.validatorHash
-          invoiceData.previousValidatorHash = this.previousValidatorHash
-          this.validatorHash = crypto.createHash('sha256').update(JSON.stringify(invoiceData)).digest('hex')
-        }
-        
-        next()
-      })
+  // always set the previous validator hash to the current one before calculating the new one
+  this.previousValidatorHash = this.validatorHash;
 
-      export default model('Nf', nfSchema)
+  const nfDataString = JSON.stringify(nfData);
+
+  this.validatorHash = crypto
+    .createHash('sha256')
+    .update(nfDataString)
+    .digest('hex');
+
+  next();
+});
+
+nfSchema.pre('findOneAndUpdate', function (next) {
+  const nfData = this.getUpdate();
+  const nfDataString = JSON.stringify(nfData);
+  nfData.validatorHash = crypto
+    .createHash('sha256')
+    .update(nfDataString)
+    .digest('hex');
+  this.update({}, nfData);
+  next();
+});
+
+export default model('Nf', nfSchema);

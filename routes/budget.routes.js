@@ -3,7 +3,8 @@ import User from '../models/user.model'
 import Producer from '../models/producer.model'
 import Company from '../models/company.model.js'
 import Movie from '../models/movie.model.js'
-import permit from "./authorization.js"; // middleware for checking if user's role is permitted to make request
+import permit from "../middlewares/authorization.js"; 
+ // middleware for checking if user's role is permitted to make request
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 

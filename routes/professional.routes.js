@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import User from '../models/user.model'
+import User from '../models/user.model.js'
 import Producer from '../models/producer.model.js'
 import Professional from '../models/professional.model.js'
 import Movie from '../models/movie.model.js'
@@ -24,14 +24,14 @@ professionalRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
 })
 
 professionalRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
-    const { name, order } = req.query
+    const { nomeFantasia, order } = req.query
     const query = {}
-    if(name) {
-        query.name = name
+    if(nomeFantasia) {
+        query.nomeFantasia = nomeFantasia
     }
     try {
         const professional = await Professional.find(query)
-                        .populate('movies' , 'title -_id')
+                        .populate('movies comments' , 'title -_id')
                         .sort(order)
         return res.status(200).json(professional)
     } catch (error) {

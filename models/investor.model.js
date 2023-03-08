@@ -18,7 +18,6 @@ const investorSchema = new Schema({
         },
         cnpj: {
           type: String,
-          required: true,
           unique: true
         },
         endereco: {
@@ -26,11 +25,9 @@ const investorSchema = new Schema({
         },
         cidade: {
           type: String,
-          required: true
         },
         cep: {
           type: String,
-          required: true
         },
         user: {
           type: Schema.Types.ObjectId,

@@ -17,7 +17,7 @@ const budgetSchema = new Schema({
       professional: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professional',
-        required: true
+        required: false
       },
       invoiceNumber: {
         type: String,

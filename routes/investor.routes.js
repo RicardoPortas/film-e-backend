@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import Investor from '../models/investor.model'
+import Investor from '../models/investor.model.js'
 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'

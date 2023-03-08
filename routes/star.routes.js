@@ -10,7 +10,7 @@ starsRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
     try {
         const newStar = await Star.create(payload)
         return res.status(201).json(newStar)
-    } catch (error) {
+    } catch (error) {console.log(error)
         if(error.name === 'ValidationError') {
             return res.status(422).json({message: "Validation error. Check your input."})
         }

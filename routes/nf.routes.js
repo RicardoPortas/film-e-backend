@@ -25,7 +25,7 @@ nfRouter.post('/', [isAuthenticatedMiddleware, permit("professional", "producer"
     }
 })
 
-nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
+nfRouter.get('/',[isAuthenticatedMiddleware, permit("professional", "producer")], async (req, res) => {
     const { year, order } = req.query
     const query = {}
     if(year) {
@@ -41,18 +41,10 @@ nfRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
+nfRouter.get('/:id', [isAuthenticatedMiddleware, permit("professional", "producer")], async (req, res) => {
     const { id } = req.params
     try {
         const nf = await nf.findById(id)
-            .populate('cast comments')
-            .populate({
-                path: 'comments',
-                populate: {
-                    path: 'user',
-                    model: 'User'
-                }
-            })
         if(!nf) {
             return res.status(404).json({message: 'Not Found'})
         }
@@ -62,14 +54,12 @@ nfRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
+nfRouter.put('/:id',[isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
     const { id } = req.params
     const payload = req.body
     try {
         const updatedNf = await Nf.findOneAndUpdate({_id: id}, payload, { new: true })
-        
-        await Movie.updateMany({_id: {$in: payload.id}}, {$push: {movies: updatedMovie._id}})
-        
+                
         if(!updatedNf) {
             return res.status(404).json({message: 'Not Found'})
         }
@@ -80,7 +70,7 @@ nfRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-nfRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
+nfRouter.delete('/:id',[isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
     const { id } = req.params
     try {
         await Nf.findOneAndDelete({_id: id})

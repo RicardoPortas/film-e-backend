@@ -41,6 +41,10 @@ const producerSchema = new Schema({
           type: Schema.Types.ObjectId,
           ref: 'User',
           required: true
+        },
+        movie: {
+          type: Schema.Types.ObjectId,
+          ref: 'Movie',
         }
       }, {timestamps: true})
 
