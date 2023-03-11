@@ -26,7 +26,7 @@ const userSchema = new Schema({
     type: String,
   },
   cpf: {
-    type: String,
+    type: String
   },
   country: {
     type: String,
@@ -52,10 +52,10 @@ const userSchema = new Schema({
      }
       ],
       
-  coments: [
+  comments: [
      { 
         type: Schema.Types.ObjectId,
-        ref: 'Coment',
+        ref: 'Comment',
      }
       ],
       

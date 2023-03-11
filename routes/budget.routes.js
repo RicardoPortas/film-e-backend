@@ -1,33 +1,33 @@
 import { Router } from 'express'
-import User from '../models/user.model'
-import Producer from '../models/producer.model'
-import Company from '../models/company.model.js'
+import Budget from '../models/budget.model.js'
+import Producer from '../models/producer.model.js'
 import Movie from '../models/movie.model.js'
-import permit from "../middlewares/authorization.js"; 
- // middleware for checking if user's role is permitted to make request
+import permit from "../middlewares/authorizationNf.js"; 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
-app.use("/api/private", permit("admin"));
-app.use(["/api/foo", "/api/bar"], permit("producer", "professional"));
-
 const budgetRouter = Router()
  
-budgetRouter.post('/', [isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
-    const payload = req.body
+budgetRouter.post('/movies/:movieId/budget',[isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
+    const { movieId } = req.params
     try {
-        const newbudget = await budget.create(payload)
+        const payload = req.body
+        console.log(payload)
+        const producer = await Producer.find({cnpj: payload.cnpj})
+        console.log(producer._id)
+        const newBudget = await Budget.create({...payload, producer: producer[0]._id, movie: movieId})
+        const movie = await Movie.findOneAndUpdate({_id: movieId}, {$push: {budget: newBudget._id}})
         return res.status(201).json(newBudget)
     } catch (error) {
         console.log(error)
         if(error.name === 'ValidationError') {
             return res.status(422).json({message: "Validation error. Check your input."})
         }
-        return res.status(500).json({message: "Error while creating movie"})
+        return res.status(500).json({message: "Error while creating budget"})
     }
 })
 
-budgetRouter.get('/', [isAuthenticatedMiddleware, permit("professional", "producer", "investor")], async (req, res) => {
+budgetRouter.get('/movies/:movieId/', [isAuthenticatedMiddleware, permit("professional", "producer", "investor")], async (req, res) => {
     const { invoiceDate, order } = req.query
     const query = {}
     if(invoiceDate) {
@@ -43,7 +43,7 @@ budgetRouter.get('/', [isAuthenticatedMiddleware, permit("professional", "produc
     }
 })
 
-budgetRouter.get('/:id', [isAuthenticatedMiddleware, permit("professional", "producer", "investor")], async (req, res) => {
+budgetRouter.get('/movies/:movieId/:id', [isAuthenticatedMiddleware, permit("professional", "producer", "investor")], async (req, res) => {
     const { id } = req.params
     try {
         const budget = await budget.findById(id)
@@ -67,8 +67,9 @@ budgetRouter.get('/:id', [isAuthenticatedMiddleware, permit("professional", "pro
 budgetRouter.put('/:id', [isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
     const { id } = req.params
     const payload = req.body
+    const userId = req.user.id 
     try {
-        const updatedBudget = await Budget.findOneAndUpdate({_id: id}, payload, { new: true })
+        const updatedBudget = await Budget.findOneAndUpdate({_id: id, user: userId}, payload, { new: true })
         
         await Nf.updateMany({_id: {$in: payload.cast}}, {$push: {nfs: updatedNf._id}})
         
@@ -82,10 +83,11 @@ budgetRouter.put('/:id', [isAuthenticatedMiddleware, permit("producer")], async 
     }
 })
 
-budgetRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
+budgetRouter.delete('/movies/:movieId/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
+    const userId = req.user.id 
     try {
-        await Budget.findOneAndDelete({_id: id})
+        await Budget.findOneAndDelete({_id: id, user: userId})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})

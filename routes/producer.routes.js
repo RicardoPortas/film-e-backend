@@ -2,7 +2,7 @@ import { Router } from 'express'
 import User from '../models/user.model.js'
 import Producer from '../models/producer.model.js'
 import Movie from '../models/movie.model.js'
-import permit from "../middlewares/authorization.js"; 
+import permit from "../middlewares/authorizationNf.js"; 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
@@ -10,8 +10,10 @@ const producerRouter = Router()
 
 producerRouter.post('/', [isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
     const payload = req.body
+    const userId = req.user.id 
+    console.log(userId)
     try {
-        const newProducer = await Producer.create(payload)
+        const newProducer = await Producer.create({...payload, user: userId})
         return res.status(201).json(newProducer)
     } catch (error) {
         console.log(error)
@@ -55,8 +57,9 @@ producerRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
 producerRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     const payload = req.body
+    const userId = req.user.id 
     try {
-        const updatedProducer = await Producer.findOneAndUpdate({_id: id}, payload, { new: true })
+        const updatedProducer = await Producer.findOneAndUpdate({_id: id, user: userId}, payload, { new: true },)
                 
         if(!updatedProducer) {
             return res.status(404).json({message: 'Not Found'})

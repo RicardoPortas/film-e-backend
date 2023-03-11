@@ -13,13 +13,18 @@ const nfSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Movie'
   },
+  budget: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Budget'
+  },
   professional: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Professional'
   },
   invoiceNumber: {
-    type: String,
-    required: false
+    type: Number,
+    required: false,
+    unique: true
   },
   invoiceDate: {
     type: String,
@@ -27,7 +32,8 @@ const nfSchema = new Schema({
   },
   invoiceVerification: {
     type: String,
-    required: false
+    required: false,
+    unique: true
   },
   invoiceAmount: {
     type: Number,

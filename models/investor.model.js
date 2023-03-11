@@ -4,12 +4,6 @@ const { model, Schema } = mongoose
 
 const investorSchema = new Schema({
   
-        nome: {
-          type: String,
-        },
-        sobrenome: {
-          type: String,
-        },
         razaoSocial: {
           type: String,
         },

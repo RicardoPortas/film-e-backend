@@ -1,16 +1,22 @@
 import { Router } from 'express'
 import Movie from '../models/movie.model.js'
 import Star from '../models/star.model.js'
+import Producer from '../models/producer.model.js'
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
-import permit from "../middlewares/authorization.js"; 
+import permit from "../middlewares/authorizationNf.js"; 
 
 
 const moviesRouter = Router()
 
 moviesRouter.post('/', [isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
+    const userId = req.user.id 
     const payload = req.body
-    try {
+    try { //encontrar o id de um producer na collection de producers que tenha o Id do usuário logado. 
+        const producer = await Producer.findOne({ userId }) // encontra o produtor correspondente ao usuário logado
+        if (!producer) {
+            return res.status(404).json({ message: "Producer not found for this user" })
+        }
         const newMovie = await Movie.create(payload)
         return res.status(201).json(newMovie)
     } catch (error) {
@@ -79,8 +85,9 @@ moviesRouter.put('/:id', [isAuthenticatedMiddleware, permit("producer")], async 
 })
 moviesRouter.delete('/:id', [isAuthenticatedMiddleware, permit("producer")], async (req, res) => {
     const { id } = req.params
+    const userId = req.user.id 
     try {
-        await Movie.findOneAndDelete({_id: id})
+        await Movie.findOneAndDelete({_id: id, user: userId})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})

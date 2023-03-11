@@ -17,7 +17,22 @@ const budgetSchema = new Schema({
       professional: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professional',
-        required: false
+      },
+      banco: {
+        type: String,
+        required: true
+      },
+      agencia: {
+        type: Number,
+        required: true
+      },
+      numeroConta: {
+        type: Number,
+        required: true
+      },
+      budgetName: {
+        type: String,
+        required: true
       },
       invoiceNumber: {
         type: String,
@@ -31,10 +46,15 @@ const budgetSchema = new Schema({
         type: String,
         required: true
       },
+      tipoFiscal: {
+        type: String,
+        required: true
+      },
       invoiceAmount: {
         type: Number,
         required: true
       },
+      
       }, {timestamps: true})
 
       export default model('Budget', budgetSchema)

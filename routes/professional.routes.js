@@ -1,18 +1,17 @@
 import { Router } from 'express'
-import User from '../models/user.model.js'
-import Producer from '../models/producer.model.js'
 import Professional from '../models/professional.model.js'
 import Movie from '../models/movie.model.js'
-
+import permit from "../middlewares/authorizationNf.js"; 
 import fileUpload from '../config/cloudinary.config.js'
 import isAuthenticatedMiddleware from '../middlewares/isAuthenticatedMiddleware.js'
 
 const professionalRouter = Router()
 
-professionalRouter.post('/', isAuthenticatedMiddleware, async (req, res) => {
+professionalRouter.post('/', [isAuthenticatedMiddleware, permit("professional")], async (req, res) => {
     const payload = req.body
+    const userId = req.user.id 
     try {
-        const newProfessional = await Professional.create(payload)
+        const newProfessional = await Professional.create({...payload, user: userId})
         return res.status(201).json(newProfessional)
     } catch (error) {
         console.log(error)
@@ -31,7 +30,7 @@ professionalRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
     }
     try {
         const professional = await Professional.find(query)
-                        .populate('movies comments' , 'title -_id')
+                        .populate('nomeFantasia')
                         .sort(order)
         return res.status(200).json(professional)
     } catch (error) {
@@ -42,15 +41,8 @@ professionalRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
 professionalRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
-        const professional = await professional.findById(id)
-            .populate('comments')
-            .populate({
-                path: 'comments',
-                populate: {
-                    path: 'user',
-                    model: 'User'
-                }
-            })
+        const professional = await Professional.findById(id)
+            .populate('nomeFantasia')
         if(!professional) {
             return res.status(404).json({message: 'Not Found'})
         }
@@ -60,13 +52,12 @@ professionalRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-professionalRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
+professionalRouter.put('/:id', [isAuthenticatedMiddleware, permit("professional")], async (req, res) => {
     const { id } = req.params
+    const userId = req.user.id 
     const payload = req.body
     try {
-        const updatedProfessional = await Professional.findOneAndUpdate({_id: id}, payload, { new: true })
-        
-        await Movie.updateMany({_id: {$in: payload.name}}, {$push: {movies: updatedMovie._id}})
+        const updatedProfessional = await Professional.findOneAndUpdate({_id: id, user: userId}, payload, { new: true })
         
         if(!updatedProfessional) {
             return res.status(404).json({message: 'Not Found'})
@@ -80,8 +71,9 @@ professionalRouter.put('/:id', isAuthenticatedMiddleware, async (req, res) => {
 
 professionalRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
+    const userId = req.user.id 
     try {
-        await Professional.findOneAndDelete({_id: id})
+        await Professional.findOneAndDelete({_id: id, user: userId})
         return res.status(204).json()
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
