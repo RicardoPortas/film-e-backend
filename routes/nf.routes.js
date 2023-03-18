@@ -27,7 +27,7 @@ nfRouter.post('/', [isAuthenticatedMiddleware, permit("professional", "producer"
         }
         const newNf = await Nf.create({...payload, producer: req.user.id, professional: req.user.id, movie: movieId, budget: budgetId})
         const budget = await Budget.findOneAndUpdate({budget: budgetId}, {$push: {nf: newNf._id}})
-        const movie = await Movie.findOneAndUpdate({_id: movieId}, {$push: {budget: newNf._id}})
+        const movie = await Movie.findOneAndUpdate({_id: movieId}, {$push: {nf: newNf._id}})
         return res.status(201).json(newNf)
     } catch (error) {
         console.log(error)
@@ -94,7 +94,7 @@ nfRouter.delete('/:id',[isAuthenticatedMiddleware, permit("producer")], async (r
     }
 })
 
-nfRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('nfDocument'), (req, res) => {
+nfRouter.post("/nfUpload", isAuthenticatedMiddleware, fileUpload.single('nfImage'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 

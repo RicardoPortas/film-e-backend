@@ -12,9 +12,7 @@ budgetRouter.post('/movies/:movieId/budget',[isAuthenticatedMiddleware, permit("
     const { movieId } = req.params
     try {
         const payload = req.body
-        console.log(payload)
         const producer = await Producer.find({cnpj: payload.cnpj})
-        console.log(producer._id)
         const newBudget = await Budget.create({...payload, producer: producer[0]._id, movie: movieId})
         const movie = await Movie.findOneAndUpdate({_id: movieId}, {$push: {budget: newBudget._id}})
         return res.status(201).json(newBudget)
@@ -94,8 +92,5 @@ budgetRouter.delete('/movies/:movieId/:id', isAuthenticatedMiddleware, async (re
     }
 })
 
-budgetRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('budgetDocument'), (req, res) => {
-    res.status(201).json({url: req.file.path})
-})
 
 export default budgetRouter

@@ -81,7 +81,7 @@ producerRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-producerRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('producerDocument'), (req, res) => {
+producerRouter.post("/producerUpload", isAuthenticatedMiddleware, fileUpload.single('producerDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 

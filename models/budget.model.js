@@ -7,12 +7,10 @@ const budgetSchema = new Schema({
     producer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Producer',
-        required: true
       },
       movie: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Movie',
-        required: true
       },
       professional: {
         type: mongoose.Schema.Types.ObjectId,

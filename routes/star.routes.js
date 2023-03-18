@@ -62,7 +62,7 @@ starsRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-starsRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('starPicture'), (req, res) => {
+starsRouter.post("/starUpload", isAuthenticatedMiddleware, fileUpload.single('starPicture'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 

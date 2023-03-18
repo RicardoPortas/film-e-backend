@@ -22,6 +22,9 @@ const movieSchema = new Schema({
           type: String,
           required: [true, 'O número de aprovação SALIC é obrigatório']
         },
+        posterUrl: {
+          type: String
+        },
         uf:{
           type: String,
           required: [true, 'O Estado de origem do projeto é obrigatório']
@@ -30,13 +33,10 @@ const movieSchema = new Schema({
             type: String,
             required: [true, 'O número do processo na ANCINE obrigatório']
         },
-        posterUrl: {
-          type: String
-        },
         plot: {
           type: String
         },
-        genres: {
+        generes: {
           type: [String]
         },
         directors: {
@@ -61,10 +61,9 @@ const movieSchema = new Schema({
           type: Schema.Types.ObjectId,
           ref: "Investor"
         }],
-        producer: {
+        Producer: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Producer',
-          required: true
         }
       }, {timestamps: true})
 

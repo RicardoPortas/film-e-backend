@@ -7,7 +7,6 @@ const nfSchema = new Schema({
   producer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Producer',
-    required: true
   },
   movie: {
     type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +35,11 @@ const nfSchema = new Schema({
     unique: true
   },
   invoiceAmount: {
-    type: Number,
+    type: String,
+    required: false
+  },
+  nfUrl: {
+    type: String,
     required: false
   },
   previousValidatorHash: {
@@ -45,8 +48,7 @@ const nfSchema = new Schema({
   validatorHash: {
     type: String,
     required: false
-  },
-  nfImage: String
+  }
 }, { timestamps: true });
 
 nfSchema.pre('save', function(next) {
@@ -57,7 +59,7 @@ nfSchema.pre('save', function(next) {
     invoiceDate: this.invoiceDate,
     invoiceVerification: this.invoiceVerification,
     invoiceAmount: this.invoiceAmount,
-    nfImage: this.nfImage
+    nfUrl: this.nfUrl
   };
 
   // always set the previous validator hash to the current one before calculating the new one

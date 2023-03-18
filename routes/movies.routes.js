@@ -37,7 +37,7 @@ moviesRouter.get('/', isAuthenticatedMiddleware, async (req, res) => {
     try {
         console.log(query)
         const movies = await Movie.find(query)
-                        .populate('cast Crew Producer comments')
+                        .populate('cast', 'Crew', 'Producer', 'comments') 
                         .sort(order)
         return res.status(200).json(movies)
     } catch (error) {
@@ -50,7 +50,7 @@ moviesRouter.get('/:id', isAuthenticatedMiddleware, async (req, res) => {
     const { id } = req.params
     try {
         const movie = await Movie.findById(id)
-            .populate('user comments')
+            .populate('comments')
             .populate({
                 path: 'comments',
                 populate: {
@@ -94,7 +94,7 @@ moviesRouter.delete('/:id', [isAuthenticatedMiddleware, permit("producer")], asy
     }
 })
 
-moviesRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('moviePoster'), (req, res) => {
+moviesRouter.post("/movieUpload", isAuthenticatedMiddleware, fileUpload.single('moviePoster'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 

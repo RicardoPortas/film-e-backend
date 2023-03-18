@@ -80,7 +80,7 @@ investorRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) => {
     }
 })
 
-investorRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('investorDocument'), (req, res) => {
+investorRouter.post("/investorUpload", isAuthenticatedMiddleware, fileUpload.single('investorDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 

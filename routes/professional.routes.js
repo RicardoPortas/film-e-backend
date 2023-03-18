@@ -80,7 +80,7 @@ professionalRouter.delete('/:id', isAuthenticatedMiddleware, async (req, res) =>
     }
 })
 
-professionalRouter.post("/upload", isAuthenticatedMiddleware, fileUpload.single('professionalDocument'), (req, res) => {
+professionalRouter.post("/professionalUpload", isAuthenticatedMiddleware, fileUpload.single('professionalDocument'), (req, res) => {
     res.status(201).json({url: req.file.path})
 })
 
